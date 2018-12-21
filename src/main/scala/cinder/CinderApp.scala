@@ -1,19 +1,29 @@
 package cinder
 
 import bleak._
+import bleak.cli.{Cli, Server}
 import bleak.netty.Netty
 import bleak.swagger3._
 
-object CinderApp {
-
-  def main(args: Array[String]): Unit = {
-    val app = new Goa with Netty
+object CinderApp extends Cli {
+  def app: Application = {
+    val app = new Netty {
+    }
     app.use(new SwaggerUIRouter)
     app.use(new ApiDocsRouter(apiConfig))
     app.use(new HttpMethodRouter(Json.objectMapper))
     app.use(new StatusCodeRouter)
     app.use(new RequestInspectionRouter(Json.objectMapper))
-    app.run()
+  }
+
+  override def servers: Seq[Server] = {
+    val users = System.getenv("CINDER_USERS").split(",")
+    val hosts = System.getenv("CINDER_HOSTS").split(",")
+    val remotePaths = System.getenv("CINDER_REMOTE_PATHS").split(",")
+
+    (0 until users.length) map { i =>
+      Server(user = users(i), host = hosts(i), remotePath = remotePaths(i))
+    }
   }
 
   private val apiConfig: Config = {
@@ -28,6 +38,10 @@ object CinderApp {
         Tag(name = "Request inspection", desc = "Inspect the request data")
       )
     )
+  }
+
+  def main(args: Array[String]): Unit = {
+    Cli.run(this, args)
   }
 
 }

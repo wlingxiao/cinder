@@ -11,10 +11,14 @@ scalacOptions ++= Seq(
   "-unchecked"
 )
 
+val BleakVersion = "0.0.2-SNAPSHOT"
+
 libraryDependencies ++= Seq(
-  "com.github.wlingxiao" %% "bleak-core" % "0.0.2-SNAPSHOT",
-  "com.github.wlingxiao" %% "bleak-netty" % "0.0.2-SNAPSHOT",
-  "com.github.wlingxiao" %% "bleak-swagger" % "0.0.2-SNAPSHOT",
+  "com.github.wlingxiao" %% "bleak-core" % BleakVersion,
+  "com.github.wlingxiao" %% "bleak-netty" % BleakVersion,
+  "com.github.wlingxiao" %% "bleak-swagger" % BleakVersion,
+  "com.github.wlingxiao" %% "bleak-cli" % BleakVersion,
+
   "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.9.4",
   "org.webjars" % "swagger-ui" % "3.20.2",
   "ch.qos.logback" % "logback-classic" % "1.2.3"
