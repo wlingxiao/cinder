@@ -21,7 +21,9 @@ libraryDependencies ++= Seq(
 
   "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.9.4",
   "org.webjars" % "swagger-ui" % "3.20.2",
-  "ch.qos.logback" % "logback-classic" % "1.2.3"
+  "ch.qos.logback" % "logback-classic" % "1.2.3",
+
+  "org.scalatest" %% "scalatest" % "3.0.4"
 )
 
 mainClass in assembly := Some("cinder.CinderApp")

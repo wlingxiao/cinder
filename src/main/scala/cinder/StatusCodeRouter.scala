@@ -8,7 +8,7 @@ import scala.util.Random
 
 class StatusCodeRouter extends Router {
 
-  private val methods = Seq(Get, Post, Put, Delete, Patch)
+  val methods = Seq(Get, Post, Put, Delete, Patch)
 
   route("/status/{codes}", methods = methods) { ctx =>
     ctx.request.paths.get("codes") match {
