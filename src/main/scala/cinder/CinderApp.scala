@@ -14,6 +14,7 @@ object CinderApp extends Cli {
     app.use(new HttpMethodRouter(Json.objectMapper))
     app.use(new StatusCodeRouter)
     app.use(new RequestInspectionRouter(Json.objectMapper))
+    app.use(new DynamicDataRouter(Json.objectMapper))
   }
 
   override def servers: Seq[Server] = {
@@ -29,14 +30,14 @@ object CinderApp extends Cli {
   private val apiConfig: Config = {
     Config(
       info = Info(
-        title = "localhost",
+        title = "Cinder",
         desc = "A simple HTTP Request & Response Service.",
         version = "0.0.1"),
       tags = Seq(
-        Tag(name = "HTTP Methods", desc = "Testing different HTTP verbs"),
-        Tag(name = "Status Code", desc = "Generates responses with given status code"),
-        Tag(name = "Request inspection", desc = "Inspect the request data")
-      )
+        Tag(name = "HTTP Methods", desc = "Testing different HTTP verbs."),
+        Tag(name = "Status Code", desc = "Generates responses with given status code."),
+        Tag(name = "Request inspection", desc = "Inspect the request data."),
+        Tag(name = "Dynamic data", desc = "Generates random and dynamic data."))
     )
   }
 

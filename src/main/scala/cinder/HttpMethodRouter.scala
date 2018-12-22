@@ -1,5 +1,7 @@
 package cinder
 
+import java.util.concurrent.{Executors, TimeUnit}
+
 import bleak._
 import bleak.swagger3.{Param, _}
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -7,47 +9,18 @@ import com.fasterxml.jackson.module.scala.experimental.ScalaObjectMapper
 import io.swagger.v3.oas.annotations.media.Schema
 
 import scala.collection.mutable
+import scala.concurrent.Promise
 
 
 class HttpMethodRouter(mapper: ObjectMapper with ScalaObjectMapper) extends BaseRouter {
 
+  private val pool = Executors.newScheduledThreadPool(1)
+
   import HttpMethodRouter._
 
-  get("/get") { ctx =>
-    val request = ctx.request
-    val headers = request.headers
-    val query = request.query
-    val args = query.iterator.map { entry =>
-      entry._1 -> query.getAll(entry._1)
-    }
-    val res = new mutable.HashMap[String, Any]()
-    res.put("headers", headers)
-    res.put("origin", request.remoteHost)
-    res.put("args", args.toMap)
-    mapper.writeValueAsString(res)
-  }
+  get("/get")(ctx => requestData(ctx))
 
-  post("/post") { ctx =>
-    val request = ctx.request
-    val headers = request.headers
-    val query = request.query
-    val formParams = request.form
-
-    val args = query.iterator.map { entry =>
-      entry._1 -> query.getAll(entry._1)
-    }
-    val form = formParams.iterator.map { entry =>
-      entry._1 -> formParams.getAll(entry._1)
-    }
-
-    val res = new mutable.HashMap[String, Any]()
-    res.put("headers", headers)
-    res.put("form", form.toMap)
-    res.put("origin", request.remoteHost)
-    res.put("args", args.toMap)
-
-    mapper.writeValueAsString(res)
-  }
+  post("/post")(ctx => requestData(ctx))
 
   put("/put") { ctx =>
 
@@ -57,9 +30,67 @@ class HttpMethodRouter(mapper: ObjectMapper with ScalaObjectMapper) extends Base
 
   }
 
+  get("/delay/{seconds}") { ctx =>
+    ctx.request.paths.get("seconds") match {
+      case Some(seconds) =>
+        try {
+          val time = seconds.toInt
+          if (time >= 0 && time <= 10) {
+            val promise = Promise[Result]()
+            pool.schedule(new Runnable {
+              override def run(): Unit = {
+                promise.success(Ok(requestData(ctx)))
+              }
+            }, seconds.toInt, TimeUnit.SECONDS)
+            promise.future
+          } else Status(s = Status.BadRequest)
+        } catch {
+          case _: NumberFormatException =>
+            Status(s = Status.BadRequest)
+        }
+      case None => NotFound()
+    }
+  }
+
+  private def requestData(ctx: Context): String = {
+    val request = ctx.request
+    val headers = request.headers
+    val query = request.query
+    val formParams = request.form
+
+    val args = query.iterator.map { entry =>
+      entry._1 -> query.getAll(entry._1)
+    }
+    val res = new mutable.HashMap[String, Any]()
+    if (hasBody(request)) {
+      val form = formParams.iterator.map { entry =>
+        entry._1 -> formParams.getAll(entry._1)
+      }
+      res.put("form", form.toMap)
+    }
+    res.put("headers", headers)
+    res.put("origin", request.remoteHost)
+    res.put("args", args.toMap)
+
+    mapper.writeValueAsString(res)
+  }
+
+  private def hasBody(request: Request): Boolean = {
+    request.method != Method.Get || request.method != Method.Head
+  }
+
   api.doc("GET /get")
     .operation("The request's query parameters", tags = Seq("HTTP Methods"))
     .params(
+      Param[String](name = "arg1", in = Query, desc = "arg1"),
+      Param[String](name = "arg2", in = Query, desc = "arg2"),
+      Param[Array[String]](name = "arg3", in = Query, desc = "arg3"))
+    .responses(Produce[GetResponseBody](desc = "The request’s query parameters.", mimeType = MimeType.Json))
+
+  api.doc("GET /delay/{seconds}")
+    .operation("Returns a delayed response (max of 10 seconds).", tags = Seq("Dynamic data"))
+    .params(
+      Param[Int](name = "seconds", in = Path),
       Param[String](name = "arg1", in = Query, desc = "arg1"),
       Param[String](name = "arg2", in = Query, desc = "arg2"),
       Param[Array[String]](name = "arg3", in = Query, desc = "arg3"))
