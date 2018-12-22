@@ -23,7 +23,7 @@ object CinderApp extends Cli {
     val remotePaths = System.getenv("CINDER_REMOTE_PATHS").split(",")
 
     (0 until users.length) map { i =>
-      Server(user = users(i), host = hosts(i), remotePath = remotePaths(i))
+      Server(user = users(i).trim, host = hosts(i).trim, remotePath = remotePaths(i).trim)
     }
   }
 
