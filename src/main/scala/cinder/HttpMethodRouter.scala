@@ -76,7 +76,7 @@ class HttpMethodRouter(mapper: ObjectMapper with ScalaObjectMapper) extends Base
   }
 
   private def hasBody(request: Request): Boolean = {
-    request.method != Method.Get || request.method != Method.Head
+    request.method != Method.Get && request.method != Method.Head
   }
 
   api.doc("GET /get")
