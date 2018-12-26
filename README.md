@@ -18,7 +18,7 @@ sbt clean assembly
 
 ```
 
-Run local at `http://127.0.0.1:7865` 
+Run locally at `http://127.0.0.1:7865` 
 ```shell
 java -jar ./target/scala-2.12/cinder-assembly-0.0.1-SNAPSHOT.jar run
 ```
