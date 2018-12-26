@@ -15,6 +15,7 @@ object CinderApp extends Cli {
     app.use(new StatusCodeRouter)
     app.use(new RequestInspectionRouter(Json.objectMapper))
     app.use(new DynamicDataRouter(Json.objectMapper))
+    app.use(new CookiesRouter(Json.objectMapper))
   }
 
   override def servers: Seq[Server] = {
@@ -37,7 +38,9 @@ object CinderApp extends Cli {
         Tag(name = "HTTP Methods", desc = "Testing different HTTP verbs."),
         Tag(name = "Status Code", desc = "Generates responses with given status code."),
         Tag(name = "Request inspection", desc = "Inspect the request data."),
-        Tag(name = "Dynamic data", desc = "Generates random and dynamic data."))
+        Tag(name = "Dynamic data", desc = "Generates random and dynamic data."),
+        Tag(name = "Cookies", desc = "Creates, reads and deletes Cookies")
+      )
     )
   }
 
