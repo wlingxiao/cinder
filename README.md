@@ -24,6 +24,7 @@ java -jar ./target/scala-2.12/cinder-assembly-0.0.1-SNAPSHOT.jar run
 ```
 Visit `http://127.0.0.1:7865/swagger-ui.html`
 
+![swagger-ui](https://github.com/wlingxiao/cinder/blob/master/images/swagger-ui.png)
 
 Deploy to remote server
 ```scala
