@@ -6,9 +6,13 @@ import bleak.netty.Netty
 import bleak.swagger3._
 
 object CinderApp extends Cli {
+
+  private val _basePath = "/cinder"
+
   def app: Application = {
-    val app = new Netty {
-    }
+    val app = new Netty
+    app.basePath = _basePath
+
     app.use(new SwaggerUIRouter)
     app.use(new ApiDocsRouter(apiConfig))
     app.use(new HttpMethodRouter(Json.objectMapper))
@@ -39,9 +43,9 @@ object CinderApp extends Cli {
         Tag(name = "Status Code", desc = "Generates responses with given status code."),
         Tag(name = "Request inspection", desc = "Inspect the request data."),
         Tag(name = "Dynamic data", desc = "Generates random and dynamic data."),
-        Tag(name = "Cookies", desc = "Creates, reads and deletes Cookies")
-      )
-    )
+        Tag(name = "Cookies", desc = "Creates, reads and deletes Cookies")),
+      servers = Seq(
+        swagger3.Server(_basePath)))
   }
 
   def main(args: Array[String]): Unit = {
