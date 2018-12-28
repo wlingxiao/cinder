@@ -8,7 +8,7 @@ class CookiesRouter(objectMapper: ObjectMapper) extends BaseRouter {
 
   import CookiesRouter._
 
-  get("/cookies") { ctx =>
+  val getCookie = get("/cookies") { ctx =>
     val cookies = ctx.request.cookies
     val res = for ((name, c) <- cookies) yield {
       name -> Option(c.value).getOrElse("")
@@ -16,12 +16,12 @@ class CookiesRouter(objectMapper: ObjectMapper) extends BaseRouter {
     objectMapper.writeValueAsString(CookieResponse(res.toMap))
   }
 
-  get("/cookies/set") { ctx =>
+  val setCookie = get("/cookies/set") { ctx =>
     val body = newCookie(ctx)
     objectMapper.writeValueAsString(CookieResponse(body))
   }
 
-  get("/cookies/delete") { ctx =>
+  val deleteCookie = get("/cookies/delete") { ctx =>
     ctx.request.query.get("name") match {
       case Some(name) =>
         val nameArray = name.split(",")
@@ -53,16 +53,16 @@ class CookiesRouter(objectMapper: ObjectMapper) extends BaseRouter {
     res.toMap
   }
 
-  api.doc("GET /cookies")
+  api(getCookie)
     .operation("Returns cookie data.", tags = Seq("Cookies"))
     .responses(Produce[CookieResponse](mimeType = MimeType.Json))
 
-  api.doc("GET /cookies/set")
+  api(setCookie)
     .operation("Sets cookie(s) as provided by the query string", tags = Seq("Cookies"))
     .params(Param[String]("cookie1", in = Query), Param[String]("cookie2", in = Query))
     .responses(Produce[CookieResponse](mimeType = MimeType.Json))
 
-  api.doc("GET /cookies/delete")
+  api(deleteCookie)
     .operation("Deletes cookie(s) as provided by the query string", tags = Seq("Cookies"))
     .params(Param[Array[String]]("name", in = Query))
     .responses(Produce[CookieResponse](mimeType = MimeType.Json))
